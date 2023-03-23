@@ -4,12 +4,14 @@ import { ListaRoles } from "../../pipes/enums";
 import { useEffect, useState } from "react";
 import generateGuid from "../../../utils/generateGuid";
 import Swal from "sweetalert2";
-import { formatosValidosFotoPerfil } from "../../../config";
+import { config, formatosValidosFotoPerfil } from "../../../config";
+import axios from "axios";
 
 const FormUsuarios = () => {
   const navigate = useNavigate();
   const [datosUsuario] = Form.useForm();
   const [loadingInternal, setLoadingInternal] = useState(false);
+  const apiURL = config.API_URL;
   const [image, setImage] = useState(null);
   const location = useLocation();
   const [usuario, setUsuario] = useState(null);
@@ -20,9 +22,75 @@ const FormUsuarios = () => {
     setLoadingInternal(true);
     const user = location?.state?.modelo;
     if (user != null) {
-      
+      try {
+        await axios
+          .put(apiURL.concat("Usuarios/" + user.id), {
+            id: user.id,
+            activo: true,
+            nombreUsuario: values.nombreUsuario,
+            apellido: values.apellido,
+            nombre: values.nombre,
+            email: values.correo,
+            contrasenia: values.contrasenia,
+            rol: values.rol,
+            fechaCreacion: user.fechaCreacion,
+            fechaActualizacion: new Date(),
+            urlImagen: null,
+            numeroTelefono: values.numTelefono,
+          })
+          .then((res) => {
+            Swal.fire({
+              icon: "success",
+              title: "¡ÉXITO!",
+              text: "El usuario ha sido actualizado con éxito.",
+              confirmButtonText: `Aceptar`,
+            }).then(() => {
+              navigate("/usuarios", {
+                state: {
+                  refetch: true,
+                },
+              });
+            });
+          });
+      } catch (error) {
+        console.error(error);
+        Swal.fire("", "Ha ocurrido un error inesperado.", "error");
+      }
     } else {
-      
+      try {
+        await axios
+          .post(apiURL.concat("Usuarios"), {
+            id: generateGuid(),
+            activo: true,
+            nombreUsuario: values.nombreUsuario,
+            apellido: values.apellido,
+            nombre: values.nombre,
+            email: values.correo,
+            contrasenia: values.contrasenia,
+            rol: values.rol,
+            fechaCreacion: new Date(),
+            fechaActualizacion: new Date(),
+            urlImagen: null,
+            numeroTelefono: values.numTelefono,
+          })
+          .then((res) => {
+            Swal.fire({
+              icon: "success",
+              title: "¡ÉXITO!",
+              text: "El usuario ha sido agregado con éxito.",
+              confirmButtonText: `Aceptar`,
+            }).then(() => {
+              navigate("/usuarios", {
+                state: {
+                  refetch: true,
+                },
+              });
+            });
+          });
+      } catch (error) {
+        console.error(error);
+        Swal.fire("", "Ha ocurrido un error inesperado.", "error");
+      }
     }
     setLoadingInternal(false);
   };
@@ -57,12 +125,12 @@ const FormUsuarios = () => {
         setIsDetalle(location.state.isDetalle);
         setUsuario(user);
         datosUsuario.setFieldsValue({
-          nombre: user.firstName,
-          apellido: user.lastName,
-          nombreUsuario: user.userName,
-          numTelefono: user.numPhone,
-          correo: user.mail,
-          contrasenia: user.password,
+          nombre: user.nombre,
+          apellido: user.apellido,
+          nombreUsuario: user.nombreUsuario,
+          numTelefono: user.numeroTelefono,
+          correo: user.email,
+          contrasenia: user.contrasenia,
           rol: user.rol,
         });
         if (user.urlImage !== null && user.urlImage !== "") {
@@ -93,15 +161,15 @@ const FormUsuarios = () => {
         icon: "warning",
         text: "Formato de archivo no válido",
       });
-    } else{
+    } else {
       setImage(e.target.files[0]);
       const imgElement = document.getElementById("img_user");
       imgElement.setAttribute("src", URL.createObjectURL(file));
       imgElement.style.display = "initial";
-  
+
       const containerElement = document.getElementById("thumbnail");
       containerElement.style.display = "initial";
-  
+
       const labelElement = document.getElementById("img_label");
       labelElement.style.display = "none";
     }
@@ -129,13 +197,32 @@ const FormUsuarios = () => {
     labelElement.style.display = "initial";
   };
 
-
   return (
     <>
       <Spin spinning={loadingInternal}>
-        <div style={{ textTransform: "uppercase", fontWeight: "bold", fontSize: "1.5rem" }}>{usuario === null ? "Agregar" : isDetalle ? "Detalle" : "Editar"} Usuario</div>
+        <div
+          style={{
+            textTransform: "uppercase",
+            fontWeight: "bold",
+            fontSize: "1.5rem",
+          }}
+        >
+          {usuario === null ? "Agregar" : isDetalle ? "Detalle" : "Editar"}{" "}
+          Usuario
+        </div>
         <div>
-          <span>Administración</span>/<span className="rutaAnteriorGeneral" onClick={() => navigate("/usuarios")}>Usuarios</span>/<span>{usuario === null ? "Agregar" : isDetalle ? "Detalle" : "Editar"} Usuario</span>
+          <span>Administración</span>/
+          <span
+            className="rutaAnteriorGeneral"
+            onClick={() => navigate("/usuarios")}
+          >
+            Usuarios
+          </span>
+          /
+          <span>
+            {usuario === null ? "Agregar" : isDetalle ? "Detalle" : "Editar"}{" "}
+            Usuario
+          </span>
         </div>
         &nbsp;
         <Form
@@ -212,7 +299,9 @@ const FormUsuarios = () => {
               </div>
               &nbsp;
               <div hidden={image === null || image === undefined || isDetalle}>
-                <Button danger onClick={RemoverImagen}>Remover Imagen</Button>
+                <Button danger onClick={RemoverImagen}>
+                  Remover Imagen
+                </Button>
               </div>
             </Col>
             <Col span={19}>
@@ -258,7 +347,11 @@ const FormUsuarios = () => {
                       },
                     ]}
                   >
-                    <Input disabled={isDetalle} placeholder="Nombre de Usuario" autoComplete="off" />
+                    <Input
+                      disabled={isDetalle}
+                      placeholder="Nombre de Usuario"
+                      autoComplete="off"
+                    />
                   </Form.Item>
                 </Col>
                 <Col span={6}>
@@ -272,7 +365,10 @@ const FormUsuarios = () => {
                       },
                     ]}
                   >
-                    <Input disabled={isDetalle} placeholder="Número de Teléfono" />
+                    <Input
+                      disabled={isDetalle}
+                      placeholder="Número de Teléfono"
+                    />
                   </Form.Item>
                 </Col>
               </Row>
@@ -350,7 +446,12 @@ const FormUsuarios = () => {
               {"Cancelar"}
             </Button>
             &nbsp;
-            <Button type="primary" className="btnPrimario" htmlType="submit" disabled={isDetalle}>
+            <Button
+              type="primary"
+              className="btnPrimario"
+              htmlType="submit"
+              disabled={isDetalle}
+            >
               Guardar
             </Button>
           </Row>

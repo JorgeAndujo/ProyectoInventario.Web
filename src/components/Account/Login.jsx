@@ -1,21 +1,42 @@
 import { Button, Col, Form, Image, Input, Row, Spin } from "antd";
 import FormItem from "antd/es/form/FormItem";
+import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { config } from "../../config";
 import { setLoggedInfo } from "../../utils/loggedInfo";
 
 const Login = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
+  const apiGetUsuarios = config.API_URL.concat("Usuarios");
   const [loadingInternal, setLoadingInternal] = useState(false);
 
   const onSubmit = async (value) => {
     setLoadingInternal(true);
     try {
+      const response = await axios.get(apiGetUsuarios + "/validateLogin/" + value.usuario);
+      if(response.data){
+        const usuarioBd = response.data;
+        if(usuarioBd.contrasenia !== value.contra){
+          Swal.fire('Error', 'La contraseña ingresada es incorrecta.', 'error');
+        } else{
+          Swal.fire({
+            icon: "success",
+            title: "¡ÉXITO!",
+            text: "Se ha iniciado sesión correctamente",
+            confirmButtonText: `Aceptar`,
+          }).then(() => {
+            localStorage.setItem("session", "true");
+            setLoggedInfo(usuarioBd);
+            navigate("/inicio");
+          });
+        }
+      }
       setLoadingInternal(false);
     } catch (error) {
-      console.log(error);
+      Swal.fire("Error", "El usuario ingresado no existe.", "error");
       setLoadingInternal(false);
     }
   };

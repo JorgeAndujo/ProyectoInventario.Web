@@ -9,7 +9,7 @@ import { actions, headers } from "./usuario.config";
 
 const Usuarios = () => {
   const navigate = useNavigate();
-  const apiGetUsuarios = config.API_DEV_URL.concat("Usuarios");
+  const apiGetUsuarios = config.API_URL.concat("Usuarios");
   const [usuarios, setUsuarios] = useState([]);
   const [loadingInternal, setLoadingInternal] = useState(false);
   const location = useLocation();
@@ -23,7 +23,8 @@ const Usuarios = () => {
         VerOEditarUsuario(row, false);
         break;
       case "eliminar":
-        EliminarUsuario(row.idDoc);
+        EliminarUsuario(row.id);
+        break;
       default:
         break;
     }
@@ -42,7 +43,16 @@ const Usuarios = () => {
       reverseButtons: true,
     }).then( async (result) => {
       if(result.isConfirmed){
-        
+        try {
+          await axios.delete(apiGetUsuarios.concat("/" + id)).then(() => {
+            Swal.fire('', 'El usuario ha sido eliminado con éxito.', 'success').then(() => {
+              ObtenerUsuarios();
+            });
+          });
+        } catch (error) {
+          console.error(error);
+          Swal.fire('', 'Ha ocurrido un error inesperado', 'error');
+        }
       }
     })
 

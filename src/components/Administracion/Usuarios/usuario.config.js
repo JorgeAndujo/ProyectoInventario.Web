@@ -61,7 +61,7 @@ export const headers = [
           }}
         >
           <span style={{ fontWeight: 700 }}>{row.email.toUpperCase()}</span>
-          {/* <span>{row.numPhone}</span> */}
+          <span>{row.numeroTelefono}</span>
         </div>
       </>
     ),

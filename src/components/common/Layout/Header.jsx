@@ -2,11 +2,14 @@ import { Image, Popover } from "antd";
 import { BellFilled } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import useStore from "../../../zustand/useStore";
+import { usuarioLogueado } from "../../../utils/loggedInfo";
+import { Roles } from "../../pipes/enums";
 
 const Header = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { tipoMenu } = useStore();
+  const userInfo = usuarioLogueado();
 
   return (
     <>
@@ -112,7 +115,7 @@ const Header = () => {
                     color: '#15458D',
                   }}
                 >
-                  ADMIN
+                  {userInfo.nombreUsuario}
                 </div>
                 <div
                   style={{
@@ -122,7 +125,7 @@ const Header = () => {
                     marginTop: '-0.5vw',
                   }}
                 >
-                  ADMINISTRADOR
+                  {Roles[userInfo.rol]}
                 </div>
                 <hr></hr>
                 <div
@@ -160,7 +163,7 @@ const Header = () => {
                   marginRight: '1vw',
                 }}
               />
-              ADMINISTRADOR
+              {userInfo.nombreUsuario}
             </div>
           </Popover>
         </div>
