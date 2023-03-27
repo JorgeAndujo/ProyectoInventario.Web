@@ -2,7 +2,7 @@ import { Image, Popover } from "antd";
 import { BellFilled } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import useStore from "../../../zustand/useStore";
-import { usuarioLogueado } from "../../../utils/loggedInfo";
+import { setLoggedInfo, usuarioLogueado } from "../../../utils/loggedInfo";
 import { Roles } from "../../pipes/enums";
 
 const Header = () => {
@@ -146,6 +146,7 @@ const Header = () => {
                   }}
                   onClick={() => {
                     localStorage.setItem("session", "false");
+                    setLoggedInfo(null);
                     navigate("/login")
                   }}
                 >

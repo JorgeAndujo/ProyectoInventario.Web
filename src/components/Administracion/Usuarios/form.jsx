@@ -6,6 +6,13 @@ import generateGuid from "../../../utils/generateGuid";
 import Swal from "sweetalert2";
 import { config, formatosValidosFotoPerfil } from "../../../config";
 import axios from "axios";
+import {
+  deleteObject,
+  getDownloadURL,
+  ref,
+  uploadBytes,
+} from "firebase/storage";
+import { storage } from "../../../firebase/config";
 
 const FormUsuarios = () => {
   const navigate = useNavigate();
@@ -38,7 +45,32 @@ const FormUsuarios = () => {
             urlImagen: null,
             numeroTelefono: values.numTelefono,
           })
-          .then((res) => {
+          .then(async (res) => {
+            if (
+              image !== null &&
+              image !== undefined &&
+              image !== user.urlImagen
+            ) {
+              try {
+                await UploadImage(image, user.id);
+              } catch (error) {
+                console.error(error);
+                Swal.fire(
+                  "Advertencia",
+                  "Ha ocurrido un error al subir la foto de perfil.",
+                  "error"
+                );
+              }
+            } else {
+              if (
+                user.urlImagen !== null &&
+                user.urlImagen !== undefined &&
+                user.ulrImagen !== "" &&
+                (image === null || image === undefined)
+              ) {
+                await RemoveImage(user.urlImagen, user.id);
+              }
+            }
             Swal.fire({
               icon: "success",
               title: "¡ÉXITO!",
@@ -58,9 +90,10 @@ const FormUsuarios = () => {
       }
     } else {
       try {
+        const id = generateGuid();
         await axios
           .post(apiURL.concat("Usuarios"), {
-            id: generateGuid(),
+            id: id,
             activo: true,
             nombreUsuario: values.nombreUsuario,
             apellido: values.apellido,
@@ -73,7 +106,19 @@ const FormUsuarios = () => {
             urlImagen: null,
             numeroTelefono: values.numTelefono,
           })
-          .then((res) => {
+          .then(async (res) => {
+            if (image !== null && image !== undefined) {
+              try {
+                await UploadImage(image, id);
+              } catch (error) {
+                console.error(error);
+                Swal.fire(
+                  "Advertencia",
+                  "Ha ocurrido un error al subir la foto de perfil.",
+                  "error"
+                );
+              }
+            }
             Swal.fire({
               icon: "success",
               title: "¡ÉXITO!",
@@ -95,28 +140,28 @@ const FormUsuarios = () => {
     setLoadingInternal(false);
   };
 
-  // const UploadImage = async (file, idDoc) => {
-  //   const storageRef = ref(storage, "images/" + generateGuid());
-  //   await uploadBytes(storageRef, file);
-  //   const url = await getDownloadURL(storageRef);
+  const UploadImage = async (file, id) => {
+    const storageRef = ref(storage, "images/" + generateGuid());
+    await uploadBytes(storageRef, file);
+    const url = await getDownloadURL(storageRef);
 
-  //   //AGREGAR LA URL AL USUARIO
-  //   const userRef = doc(db, "users", idDoc);
-  //   await updateDoc(userRef, {
-  //     urlImage: url,
-  //   });
-  // };
+    //AGREGAR LA URL AL USUARIO
+    const res = await axios.get(apiURL.concat("Usuarios/" + id));
+    let usuario = res?.data;
+    usuario.urlImagen = url;
+    await axios.put(apiURL.concat("Usuarios/" + id), usuario);
+  };
 
-  // const RemoveImage = async (url, idDoc) => {
-  //   const fileRef = ref(storage, url);
-  //   await deleteObject(fileRef);
+  const RemoveImage = async (url, id) => {
+    const fileRef = ref(storage, url);
+    await deleteObject(fileRef);
 
-  //   //REMOVER LA URL AL USUARIO
-  //   const userRef = doc(db, "users", idDoc);
-  //   await updateDoc(userRef, {
-  //     urlImage: "",
-  //   });
-  // }
+    //REMOVER LA URL AL USUARIO
+    const res = await axios.get(apiURL.concat("Usuarios/" + id));
+    let usuario = res?.data;
+    usuario.urlImagen = "";
+    await axios.put(apiURL.concat("Usuarios/" + id), usuario);
+  };
 
   useEffect(() => {
     if (location.state) {
@@ -133,11 +178,11 @@ const FormUsuarios = () => {
           contrasenia: user.contrasenia,
           rol: user.rol,
         });
-        if (user.urlImage !== null && user.urlImage !== "") {
-          setImage(user.urlImage);
+        if (user.urlImagen !== null && user.urlImagen !== "") {
+          setImage(user.urlImagen);
           document
             .getElementById("img_user")
-            .setAttribute("src", user.urlImage);
+            .setAttribute("src", user.urlImagen);
           document.getElementById("img_user").style.display = "initial";
           const containerElement = document.getElementById("thumbnail");
           containerElement.style.display = "initial";
@@ -443,7 +488,7 @@ const FormUsuarios = () => {
               onClick={() => navigate("/usuarios")}
               className="btnPrimario"
             >
-              {"Cancelar"}
+              {isDetalle ? "Regresar" : "Cancelar"}
             </Button>
             &nbsp;
             <Button

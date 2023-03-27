@@ -7,7 +7,8 @@ const Login = lazy(() => import("./Login"));
 const AccountRouter = () => (
     <Routes>
         <Route path={"/login"} element={<Login />}/>
-        <Route path='/' element={<Navigate replace to='/login' />} />
+        <Route path={"/"} element={<Navigate replace to='/login' />} />
+        <Route path={"*"} element={<Navigate replace to='/login' />} />
     </Routes>
 )
 

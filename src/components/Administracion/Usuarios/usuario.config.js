@@ -26,7 +26,7 @@ export const headers = [
               height: 75,
               objectFit: "cover",
             }}
-            src={row.urlImage}
+            src={row.urlImagen}
             fallback={"..."}
             preview={{
               src: row.urlImagen,

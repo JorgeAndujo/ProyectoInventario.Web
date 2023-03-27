@@ -35,8 +35,9 @@ const RoutesDir = () => {
   const currentKey = generateGuid();
   const timeout = { enter: 500, exit: 500 };
   const animationName = "rag-fadeInLeft";
+  const userInfo = usuarioLogueado();
 
-  if (listaDePaginas.indexOf(location.pathname) > -1 || usuarioLogueado() == null) {
+  if (listaDePaginas.indexOf(location.pathname) > -1 || userInfo == null) {
     return (
       <Suspense fallback={() => <div>Cargando...</div>}>
         <Routes>

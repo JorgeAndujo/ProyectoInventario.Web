@@ -71,7 +71,6 @@ const Usuarios = () => {
     setLoadingInternal(true);
     await axios.get(apiGetUsuarios)
       .then(res => {
-        console.log(res.data);
         setUsuarios(res.data);
         setLoadingInternal(false);
       }).catch(err => {
