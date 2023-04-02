@@ -86,7 +86,13 @@ const FormUsuarios = () => {
           });
       } catch (error) {
         console.error(error);
-        Swal.fire("", "Ha ocurrido un error inesperado.", "error");
+        if(error?.response?.data === "EMAIL_ALREADY_EXISTS")
+        {
+          Swal.fire("", "El correo electrónico ingresado ya esta en uso.", "error");
+
+        } else{
+          Swal.fire("", "Ha ocurrido un error inesperado.", "error");
+        }
       }
     } else {
       try {
@@ -134,7 +140,15 @@ const FormUsuarios = () => {
           });
       } catch (error) {
         console.error(error);
-        Swal.fire("", "Ha ocurrido un error inesperado.", "error");
+        if(error?.response?.data === "EMAIL_ALREADY_EXISTS")
+        {
+          Swal.fire("", "El correo electrónico ingresado ya esta en uso.", "error");
+          
+        } else if(error?.response?.data === "USERNAME_ALREADY_EXISTS"){
+          Swal.fire("", "El nombre de usuario ingresado ya esta en uso.", "error");
+        } else{
+          Swal.fire("", "Ha ocurrido un error inesperado.", "error");
+        }
       }
     }
     setLoadingInternal(false);
@@ -433,7 +447,7 @@ const FormUsuarios = () => {
                       },
                     ]}
                   >
-                    <Input disabled={isDetalle} placeholder="correo" />
+                    <Input disabled={isDetalle} placeholder="Correo" />
                   </Form.Item>
                 </Col>
                 <Col span={6}>
@@ -447,7 +461,7 @@ const FormUsuarios = () => {
                       },
                     ]}
                   >
-                    <Input.Password disabled={isDetalle} placeholder="correo" />
+                    <Input.Password disabled={isDetalle} placeholder="Contraseña" />
                   </Form.Item>
                 </Col>
                 <Col span={6}>

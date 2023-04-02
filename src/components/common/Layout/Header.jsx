@@ -158,7 +158,7 @@ const Header = () => {
             <div className='userMenu'>
               <Image
                 preview={false}
-                src={"fotoperfil.jpg"}
+                src={userInfo.urlImagen}
                 style={{
                   width: '3.5vw',
                   marginRight: '1vw',

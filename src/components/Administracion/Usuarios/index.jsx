@@ -4,11 +4,13 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { config } from "../../../config";
+import { usuarioLogueado } from "../../../utils/loggedInfo";
 import CustomRecordViewer from "../../common/CustomRecordViewer/RecordViewer";
 import { actions, headers } from "./usuario.config";
 
 const Usuarios = () => {
   const navigate = useNavigate();
+  const userInfo = usuarioLogueado();
   const apiGetUsuarios = config.API_URL.concat("Usuarios");
   const [usuarios, setUsuarios] = useState([]);
   const [loadingInternal, setLoadingInternal] = useState(false);
@@ -100,7 +102,10 @@ const Usuarios = () => {
     <>
       <div style={{ width: "82vw" }}>
         <CustomRecordViewer
-          data={usuarios}
+          data={usuarios?.map(x => ({
+            ...x,
+            showEliminar: userInfo.id === x.id ? false : true
+          }))}
           columns={headers}
           textoBotonAdd={"Agregar usuario"}
           actions={actions}

@@ -89,5 +89,6 @@ export const actions = [
     key: "eliminar",
     tooltip: "Eliminar",
     icon: <CloseCircleOutlined />,
+    showIf: [({showEliminar}) => showEliminar] 
   },
 ];

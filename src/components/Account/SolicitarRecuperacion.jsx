@@ -5,9 +5,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { config } from "../../config";
-import { setLoggedInfo } from "../../utils/loggedInfo";
 
-const Login = () => {
+const RecoverPassword = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const apiGetUsuarios = config.API_URL.concat("Usuarios");
@@ -16,29 +15,18 @@ const Login = () => {
   const onSubmit = async (value) => {
     setLoadingInternal(true);
     try {
-      const response = await axios.get(
-        apiGetUsuarios + "/validateLogin/" + value.usuario
-      );
-      if (response.data) {
-        const usuarioBd = response.data;
-        if (usuarioBd.contrasenia !== value.contra) {
-          Swal.fire("Error", "La contraseña ingresada es incorrecta.", "error");
-        } else {
-          Swal.fire({
-            icon: "success",
-            title: "¡ÉXITO!",
-            text: "Se ha iniciado sesión correctamente",
-            confirmButtonText: `Aceptar`,
-          }).then(() => {
-            localStorage.setItem("session", "true");
-            setLoggedInfo(usuarioBd);
-            navigate("/inicio");
-          });
-        }
-      }
+      await axios.get(apiGetUsuarios.concat("/recoverPassword/") + value.email);
+      Swal.fire({
+        icon: "success",
+        title: "¡ÉXITO!",
+        text: "Se ha enviado un enlace de recuperación a su dirección de correo electronico.",
+        confirmButtonText: `Aceptar`,
+      }).then(() => {
+        navigate("/login");
+      });
       setLoadingInternal(false);
     } catch (error) {
-      Swal.fire("Error", "El usuario ingresado no existe.", "error");
+      Swal.fire("Error", "Ha ocurrido un error inesperado.", "error");
       setLoadingInternal(false);
     }
   };
@@ -69,7 +57,7 @@ const Login = () => {
           >
             <Row gutter={16}>
               <Col span={8}>
-                <div style={{ backgroundColor: "#15458D", height: "37vw" }}>
+                <div style={{ backgroundColor: "#15458D", height: "35vw" }}>
                   <Image
                     src="./Logo.png"
                     width={"15vw"}
@@ -98,37 +86,17 @@ const Login = () => {
                       <Col span={6}></Col>
                       <Col span={12}>
                         {" "}
-                        <FormItem label={"Usuario"} name={"usuario"}>
-                          <Input placeholder="Escriba su nombre de usuario" />
+                        <FormItem label={"Correo Electronico"} name={"email"} rules={[{required: true, message: "Campo requerido."}]}>
+                          <Input placeholder="Escriba su dirección de correo electronico." />
                         </FormItem>
                       </Col>
                       <Col span={6}></Col>
                     </Row>
-                    <Row>
-                      <Col span={6}></Col>
-                      <Col span={12}>
-                        {" "}
-                        <FormItem label={"Contraseña"} name={"contra"}>
-                          <Input.Password placeholder="Escriba su contraseña" />
-                        </FormItem>
-                      </Col>
-                      <Col span={6}></Col>
-                    </Row>
-                    <Row>
-                      <Col span={6}></Col>
-                      <Col span={12}>
-                        <Button type="primary" htmlType="submit">
-                          INICIAR SESIÓN
-                        </Button>
-                        <div>
-                          ¿Olvido su contraseña?{" "}
-                          <a onClick={() => navigate("/requestRecover")}>
-                            Haga clic aqui
-                          </a>
-                        </div>
-                      </Col>
-                      <Col span={6}></Col>
-                    </Row>
+                  </div>
+                  <div>
+                    <Button type="primary" htmlType="submit">
+                      ENVIAR SOLICITUD
+                    </Button>
                   </div>
                 </Form>
               </Col>
@@ -140,4 +108,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default RecoverPassword;

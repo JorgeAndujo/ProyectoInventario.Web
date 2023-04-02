@@ -2,12 +2,13 @@ import { Button, Col, Form, Image, Input, Row, Spin } from "antd";
 import FormItem from "antd/es/form/FormItem";
 import axios from "axios";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import { config } from "../../config";
 import { setLoggedInfo } from "../../utils/loggedInfo";
 
-const Login = () => {
+const RecoverPassword = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const apiGetUsuarios = config.API_URL.concat("Usuarios");
@@ -16,29 +17,31 @@ const Login = () => {
   const onSubmit = async (value) => {
     setLoadingInternal(true);
     try {
-      const response = await axios.get(
-        apiGetUsuarios + "/validateLogin/" + value.usuario
-      );
+      if(value.password !== value.passwordConfirm){
+        Swal.fire("Error", "Las contraseñas ingresadas no coinciden.", "error");
+      } else{
+        const response = await axios.get(apiGetUsuarios.concat("/") + id);
       if (response.data) {
         const usuarioBd = response.data;
-        if (usuarioBd.contrasenia !== value.contra) {
-          Swal.fire("Error", "La contraseña ingresada es incorrecta.", "error");
-        } else {
-          Swal.fire({
-            icon: "success",
-            title: "¡ÉXITO!",
-            text: "Se ha iniciado sesión correctamente",
-            confirmButtonText: `Aceptar`,
+        await axios
+          .put(apiGetUsuarios.concat("/") + usuarioBd.id, {
+            ...usuarioBd,
+            contrasenia: value.password
           }).then(() => {
-            localStorage.setItem("session", "true");
-            setLoggedInfo(usuarioBd);
-            navigate("/inicio");
-          });
-        }
+            Swal.fire({
+                icon: "success",
+                title: "¡ÉXITO!",
+                text: "La contraseña ha sido modificada correctamente. Inicie sesión con la nueva contraseña.",
+                confirmButtonText: `Aceptar`,
+              }).then(() => {
+                navigate("/login");
+              });
+          })
+      }
       }
       setLoadingInternal(false);
     } catch (error) {
-      Swal.fire("Error", "El usuario ingresado no existe.", "error");
+      Swal.fire("Error", "Ha ocurrido un error inesperado", "error");
       setLoadingInternal(false);
     }
   };
@@ -69,9 +72,9 @@ const Login = () => {
           >
             <Row gutter={16}>
               <Col span={8}>
-                <div style={{ backgroundColor: "#15458D", height: "37vw" }}>
+                <div style={{ backgroundColor: "#15458D", height: "36vw" }}>
                   <Image
-                    src="./Logo.png"
+                    src={"./../Logo.png"}
                     width={"15vw"}
                     preview={false}
                     style={{ marginTop: "8vw" }}
@@ -81,7 +84,11 @@ const Login = () => {
               <Col span={16}>
                 <div style={{ width: "100%" }}>
                   <div style={{ display: "inline-flex", marginTop: "5vw" }}>
-                    <Image src="./Logo.png" width={"7vw"} preview={false} />
+                    <Image
+                      src={"./../Logo.png"}
+                      width={"7vw"}
+                      preview={false}
+                    />
                     <div style={{ fontSize: "larger" }}>
                       &nbsp;<p style={{ margin: "0" }}>SISTEMA DE INVENTARIO</p>{" "}
                       <p style={{ margin: "0" }}>PARA MINISUPER</p>
@@ -98,8 +105,14 @@ const Login = () => {
                       <Col span={6}></Col>
                       <Col span={12}>
                         {" "}
-                        <FormItem label={"Usuario"} name={"usuario"}>
-                          <Input placeholder="Escriba su nombre de usuario" />
+                        <FormItem
+                          label={"Nueva Contraseña"}
+                          name={"password"}
+                          rules={[
+                            { required: true, message: "Campo requerido." },
+                          ]}
+                        >
+                          <Input.Password placeholder="Escriba su nueva contraseña" />
                         </FormItem>
                       </Col>
                       <Col span={6}></Col>
@@ -108,8 +121,14 @@ const Login = () => {
                       <Col span={6}></Col>
                       <Col span={12}>
                         {" "}
-                        <FormItem label={"Contraseña"} name={"contra"}>
-                          <Input.Password placeholder="Escriba su contraseña" />
+                        <FormItem
+                          label={"Confirmar Contraseña"}
+                          name={"passwordConfirm"}
+                          rules={[
+                            { required: true, message: "Campo requerido." },
+                          ]}
+                        >
+                          <Input.Password placeholder="Confirme su contraseña" />
                         </FormItem>
                       </Col>
                       <Col span={6}></Col>
@@ -118,14 +137,8 @@ const Login = () => {
                       <Col span={6}></Col>
                       <Col span={12}>
                         <Button type="primary" htmlType="submit">
-                          INICIAR SESIÓN
+                          CAMBIAR CONTRASEÑA
                         </Button>
-                        <div>
-                          ¿Olvido su contraseña?{" "}
-                          <a onClick={() => navigate("/requestRecover")}>
-                            Haga clic aqui
-                          </a>
-                        </div>
                       </Col>
                       <Col span={6}></Col>
                     </Row>
@@ -140,4 +153,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default RecoverPassword;
