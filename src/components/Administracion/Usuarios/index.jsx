@@ -13,6 +13,7 @@ const Usuarios = () => {
   const userInfo = usuarioLogueado();
   const apiGetUsuarios = config.API_URL.concat("Usuarios");
   const [usuarios, setUsuarios] = useState([]);
+  const [listaUsuarios, setListaUsuarios] = useState([]);
   const [loadingInternal, setLoadingInternal] = useState(false);
   const location = useLocation();
 
@@ -74,16 +75,22 @@ const Usuarios = () => {
     await axios.get(apiGetUsuarios)
       .then(res => {
         setUsuarios(res.data);
+        setListaUsuarios(res.data);
         setLoadingInternal(false);
       }).catch(err => {
         console.log(err);
         setLoadingInternal(false);
       })
-    // if (!data.empty) {
-    //   setUsuarios(data.docs.map((doc) => ({ idDoc: doc.id, ...doc.data() })));
-    // } else {
-    //   setUsuarios([]);
-    // }
+  };
+
+  const buscarUsuario = (term) => {
+    var filtro = usuarios?.filter(
+      (x) =>
+        x.nombre?.toLowerCase().includes(term.toLowerCase()) ||
+        x.apellido?.toLowerCase().includes(term.toLowerCase()) ||
+        x.mail?.toLowerCase().includes(term.toLowerCase())
+    );
+    setListaUsuarios(filtro);
   };
 
   useEffect(() => {
@@ -102,13 +109,14 @@ const Usuarios = () => {
     <>
       <div style={{ width: "82vw" }}>
         <CustomRecordViewer
-          data={usuarios?.map(x => ({
+          data={listaUsuarios?.map(x => ({
             ...x,
             showEliminar: userInfo.id === x.id ? false : true
           }))}
           columns={headers}
           textoBotonAdd={"Agregar usuario"}
           actions={actions}
+          setSearchTerm={(term) => buscarUsuario(term)}
           onActionClick={onActionClick}
           loading={loadingInternal}
         />

@@ -10,6 +10,7 @@ const Proveedores = () => {
   const navigate = useNavigate();
   const apiProveedor = config.API_URL.concat("Proveedores");
   const [proveedores, setProveedores] = useState([]);
+  const [listaProveedores, setListaProveedores] = useState([]);
   const [loadingInternal, setLoadingInternal] = useState(false);
   const location = useLocation();
 
@@ -71,11 +72,22 @@ const Proveedores = () => {
     await axios.get(apiProveedor)
       .then(res => {
         setProveedores(res.data);
+        setListaProveedores(res.data);
         setLoadingInternal(false);
       }).catch(err => {
         console.log(err);
         setLoadingInternal(false);
       })
+  };
+
+  const BuscarProveedor = (term) => {
+    var filtro = proveedores?.filter(
+      (x) =>
+        x.razonSocial?.toLowerCase().includes(term.toLowerCase()) ||
+        x.correo?.toLowerCase().includes(term.toLowerCase()) ||
+        x.rfc?.toLowerCase().includes(term.toLowerCase())
+    );
+    setListaProveedores(filtro);
   };
 
   useEffect(() => {
@@ -94,12 +106,13 @@ const Proveedores = () => {
     <>
       <div style={{ width: "82vw" }}>
         <CustomRecordViewer
-          data={proveedores}
+          data={listaProveedores}
           columns={headers}
           textoBotonAdd={"Agregar proveedor"}
           actions={actions}
           onActionClick={onActionClick}
           loading={loadingInternal}
+          setSearchTerm={(term) => BuscarProveedor(term)}
         />
       </div>
     </>
