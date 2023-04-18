@@ -3,10 +3,12 @@ import { useNavigate } from "react-router-dom";
 import useStore from "../../../zustand/useStore";
 import Header from "./Header";
 import { ProfileOutlined, ShoppingCartOutlined, ReconciliationOutlined } from "@ant-design/icons";
+import { usuarioLogueado } from "../../../utils/loggedInfo";
 
 const Layout = ({ children }) => {
   const navigate = useNavigate();
   const { tipoMenu, setTipoMenu } = useStore();
+  const userInfo = usuarioLogueado();
 
   return (
     <>
@@ -28,6 +30,7 @@ const Layout = ({ children }) => {
             }}
           />
           <div
+            hidden={userInfo?.rol !== "ADMINISTRADOR"}
             className="itemSubMenu"
             id={tipoMenu === "Administracion" && "itemSubMenu"}
             onClick={() => {

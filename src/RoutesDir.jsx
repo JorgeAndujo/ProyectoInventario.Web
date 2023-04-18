@@ -15,6 +15,8 @@ const UsuariosRouter = lazy(() => import("./components/Administracion/Usuarios")
 const FormUsuarios = lazy(() => import("./components/Administracion/Usuarios/form"));
 const ProveedoresRouter = lazy(() => import("./components/Administracion/Proveedores"));
 const FormProveedoresRouter = lazy(() => import("./components/Administracion/Proveedores/form"));
+const ProductosRouter = lazy(() => import("./components/Administracion/Productos"));
+const FormProductos = lazy(() => import("./components/Administracion/Productos/form"));
 
 //Rutas de inventario
 const InventarioRouter = lazy(() => import("./components/Inventario/Inventario"));
@@ -66,6 +68,8 @@ const RoutesDir = () => {
                   <Route path={"/usuarios/form"} element={<FormUsuarios />} />
                   <Route path={"/proveedores"} element={<ProveedoresRouter />}/>
                   <Route path={"/proveedores/form"} element={<FormProveedoresRouter />} />
+                  <Route path={"/productos"} element={<ProductosRouter />} />
+                  <Route path={"/productos/form"} element={<FormProductos />} />
 
                   {/* RUTAS DE INVENTARIO */}
                   <Route path={"/inventario"} element={<InventarioRouter />}/>

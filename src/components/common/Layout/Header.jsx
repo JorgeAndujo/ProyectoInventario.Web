@@ -50,6 +50,13 @@ const Header = () => {
                 >
                   Proveedores
                 </div>
+                <div
+                  className="itemMenu"
+                  id={pathname.includes("productos") && "currentItemMenu"}
+                  onClick={() => navigate("./productos")}
+                >
+                  Productos
+                </div>
               </>
             )}
             {tipoMenu === "Inventario" && (
