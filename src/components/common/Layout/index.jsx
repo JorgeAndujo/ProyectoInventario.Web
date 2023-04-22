@@ -21,11 +21,11 @@ const Layout = ({ children }) => {
               setTipoMenu("sinMenu");
               navigate("./Inicio");
             }}
-            src={"./Logo.svg"}
+            src={"./Logo.png"}
             style={{
               zIndex: 4000,
-              width: "10vw",
-              height: '6vw',
+              width: "8vw",
+              height: '8vw',
               marginBottom: "1vw",
             }}
           />
